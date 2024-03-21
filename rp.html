@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Página Web con Menú</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <style>
+        body {
+            background-color: #580505;
+            color: #FFFFFF;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        nav {
+            background-color: #333333; /* Fondo del menú */
+            padding: 10px; /* Espaciado interno del menú */
+            text-align: center; /* Alineación del texto en el menú */
+        }
+        nav ul {
+            list-style-type: none; /* Elimina los puntos de la lista */
+            margin: 0;
+            padding: 0;
+        }
+        nav li {
+            display: inline; /* Muestra los elementos de la lista en línea */
+            margin-right: 20px; /* Espacio entre elementos del menú */
+        }
+        nav a {
+            text-decoration: none; /* Elimina el subrayado del enlace */
+            color: #FFFFFF; /* Color del texto del enlace */
+            font-weight: bold; /* Texto en negrita */
+            font-size: 16px; /* Tamaño del texto del enlace */
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="inicio.html">Inicio</a></li>
+            <li><a href="descargas.html">Descargas</a></li>
+            <li><a href="redes.html">Redes</a></li>
+        </ul>
+    </nav>
+
+    <nav>
+        <ul>
+            <li><a href=dp.html>Datapacks</a></li>
+            <li><a href=rp.html>Resourcepacks</a></li>
+            <li><a href=mp.html>Mapas</a></li>
+        </ul>
+    </nav>
+    <table>
+        <tr>
+            <th>Personaje</th>
+            <th>Seleccionar</th>
+        </tr>
+        <tr>
+            <td>Creeper</td>
+            <td><select class="selectorTexturas" multiple>
+                <option value="creeper">Seleccionar</option>
+            </select></td>
+        </tr>
+        <tr>
+            <td>Steve</td>
+            <td><select class="selectorTexturas" multiple>
+                <option value="steve">Seleccionar</option>
+            </select></td>
+        </tr>
+        <tr>
+            <td>Enderman</td>
+            <td><select class="selectorTexturas" multiple>
+                <option value="enderman">Seleccionar</option>
+            </select></td>
+        </tr>
+        <!-- Agrega más filas según sea necesario -->
+    </table>
+
+    <button id="generarResourcePack">Generar Resource Pack</button>
+
+    <script>
+        document.getElementById('generarResourcePack').addEventListener('click', function() {
+            var selectores = document.querySelectorAll('.selectorTexturas');
+            var opcionesSeleccionadas = [];
+
+            selectores.forEach(function(selector) {
+                var opcionSeleccionada = selector.options[selector.selectedIndex].value;
+                if (opcionSeleccionada !== 'Seleccionar') {
+                    opcionesSeleccionadas.push(opcionSeleccionada);
+                }
+            });
+
+            if (opcionesSeleccionadas.length === 0) {
+                alert('Selecciona al menos una textura.');
+                return;
+            }
+
+            // Lógica para generar el archivo del Resource Pack según las opciones seleccionadas
+            var contenidoResourcePack = generarContenidoResourcePack(opcionesSeleccionadas);
+
+            // Generamos el archivo ZIP
+            descargarArchivoZIP(contenidoResourcePack, 'resourcepack.zip');
+        });
+
+        function generarContenidoResourcePack(texturasSeleccionadas) {
+            // Generamos el contenido del archivo pack.mcmeta
+            var mcmeta = '{ "pack": { "pack_format": 26, "description": "Resourcepack personalizado" } }';
+
+            // Crear la estructura de carpetas y archivos
+            var zip = new JSZip();
+            zip.file('pack.mcmeta', mcmeta);
+
+            var assetsFolder = zip.folder('assets');
+            var minecraftFolder = assetsFolder.folder('minecraft');
+            var texturesFolder = minecraftFolder.folder('textures');
+            var entitiesFolder = texturesFolder.folder('entities');
+
+            // Agregar archivos de texturas según las opciones seleccionadas
+            texturasSeleccionadas.forEach(function(textura) {
+                entitiesFolder.file(textura + '.png', 'Contenido de la textura ' + textura);
+            });
+
+            return zip;
+        }
+
+        function descargarArchivoZIP(contenido, nombreArchivo) {
+            contenido.generateAsync({ type: 'blob' }).then(function(content) {
+                // Simulamos la descarga del archivo
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = nombreArchivo;
+                link.click();
+            });
+        }
+    </script>
+
+</body>
+</html>
